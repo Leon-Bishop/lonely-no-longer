@@ -1,0 +1,91 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+enum Role { USER MODERATOR ADMIN }
+enum ReportStatus { OPEN RESOLVED DISMISSED }
+enum ModerationAction { FILTER_REJECT MUTE UNMUTE BAN UNBAN REPORT_RESOLVE REPORT_DISMISS DELETE_MESSAGE }
+model User {
+ id String @id @default(cuid())
+ alias String @unique
+ role Role @default(USER)
+ createdAt DateTime @default(now())
+ agePassed Boolean @default(false)
+ ageCheckedAt DateTime?
+ acceptedRulesAt DateTime?
+ bannedAt DateTime?
+ mutedUntil DateTime?
+ deletedAt DateTime?
+ sessions Session[]
+ messages Message[]
+ matchesA Match[] @relation("MatchA")
+ matchesB Match[] @relation("MatchB")
+ outgoingBlocks Block[] @relation("Blocker")
+ incomingBlocks Block[] @relation("Blocked")
+ reports Report[] @relation("Reporter")
+ reportsAgainst Report[] @relation("ReportedUser")
+ moderationActions AuditLog[] @relation("Moderator")
+ auditTargets AuditLog[] @relation("Target")
+}
+model Session {
+ id String @id @default(cuid())
+ tokenHash String @unique
+ userId String
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ expiresAt DateTime
+ createdAt DateTime @default(now())
+}
+model Match {
+ id String @id @default(cuid())
+ userAId String
+ userBId String
+ userA User @relation("MatchA",fields:[userAId],references:[id])
+ userB User @relation("MatchB",fields:[userBId],references:[id])
+ createdAt DateTime @default(now())
+ endedAt DateTime?
+ messages Message[]
+ @@index([userAId,endedAt])
+ @@index([userBId,endedAt])
+}
+model Message {
+ id String @id @default(cuid())
+ authorId String
+ author User @relation(fields:[authorId],references:[id])
+ matchId String
+ match Match @relation(fields:[matchId],references:[id])
+ body String @db.VarChar(500)
+ createdAt DateTime @default(now())
+ reports Report[]
+ @@index([matchId,createdAt])
+}
+model Block {
+ blockerId String
+ blockedId String
+ createdAt DateTime @default(now())
+ blocker User @relation("Blocker",fields:[blockerId],references:[id],onDelete:Cascade)
+ blocked User @relation("Blocked",fields:[blockedId],references:[id],onDelete:Cascade)
+ @@id([blockerId,blockedId])
+}
+model Report {
+ id String @id @default(cuid())
+ reporterId String
+ reporter User @relation("Reporter",fields:[reporterId],references:[id])
+ reportedUserId String
+ reportedUser User @relation("ReportedUser",fields:[reportedUserId],references:[id])
+ messageId String?
+ message Message? @relation(fields:[messageId],references:[id],onDelete:SetNull)
+ reason String @db.VarChar(400)
+ status ReportStatus @default(OPEN)
+ createdAt DateTime @default(now())
+ reviewedAt DateTime?
+ @@index([status,createdAt])
+}
+model AuditLog {
+ id String @id @default(cuid())
+ actorId String?
+ actor User? @relation("Moderator",fields:[actorId],references:[id],onDelete:SetNull)
+ targetId String?
+ target User? @relation("Target",fields:[targetId],references:[id],onDelete:SetNull)
+ action ModerationAction
+ detail String @db.VarChar(500)
+ createdAt DateTime @default(now())
+ @@index([createdAt])
+}
