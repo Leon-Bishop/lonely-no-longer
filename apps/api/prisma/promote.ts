@@ -1,0 +1,2 @@
+import 'dotenv/config';import {PrismaClient} from '@prisma/client';
+const db=new PrismaClient();const alias=process.argv[2];const secret=process.argv[3];if(!alias||!secret||secret!==process.env.ADMIN_SEED_SECRET){console.error('Usage: npm run promote -w @lnl/api -- <alias> <ADMIN_SEED_SECRET>');process.exit(1)}await db.user.update({where:{alias},data:{role:'ADMIN'}});console.log('Promoted',alias);await db.$disconnect();
