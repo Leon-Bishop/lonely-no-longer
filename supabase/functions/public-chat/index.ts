@@ -22,6 +22,14 @@ function constantEqual(a:string,b:string){
 const validToken=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v);
 const validRoom=(v:unknown):v is string=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9-]{27}$/i.test(v);
 const failDb=()=>respond(503,{error:'Chat unavailable'});
+// Rate-limit all authenticated gateway requests with atomic Postgres counters.
+async function enforceRateLimit(key:string,bucket:string):Promise<Response|null>{
+ const {data,error}=await db.rpc('public_chat_consume_rate_limit',{p_rate_key:key,p_bucket:bucket});
+ if(error||typeof data!=='boolean')return failDb();
+ return data?null:respond(429,{error:'Please slow down and try again soon.'});
+}
+const reportReasons=new Set(['underage','grooming','harassment','threat','sexual_content','personal_info','spam','other']);
+
 
 Deno.serve(async req=>{
  if(!origin||!enabled||gatewaySecret.length<32)return respond(503,{error:'Public chat is not open'});
@@ -49,9 +57,14 @@ Deno.serve(async req=>{
  try{const parsed=JSON.parse(body);if(!parsed||Array.isArray(parsed)||typeof parsed!=='object')throw Error();data=parsed;}
  catch{return respond(400,{error:'Invalid request'});}
  const action=data.action;
+ // A single hashed-IP flood ceiling is checked before session lookup.
+ const ipLimit=await enforceRateLimit(ipHash,'ip_all');
+ if(ipLimit)return ipLimit;
  if(action==='start'){
    // These are explicit declarations by the visitor, NOT proof of age.
    if(data.adult!==true||data.agree_rules!==true)return respond(400,{error:'Please confirm the entry rules'});
+   const startLimit=await enforceRateLimit(ipHash,'start_ip');
+   if(startLimit)return startLimit;
    const token=hex(crypto.getRandomValues(new Uint8Array(32)));
    const {error}=await db.rpc('public_chat_begin',{p_token_hash:await hash(token),p_ip_hash:ipHash});
    if(error)return error.message?.includes('Too many active sessions')?
@@ -59,12 +72,21 @@ Deno.serve(async req=>{
    return respond(200,{token});
  }
  if(!validToken(data.token))return respond(401,{error:'Session unavailable'});
+ const tokenHash=await hash(data.token);
  const {data:session,error:sessionError}=await db.from('public_chat_sessions')
    .select('id,ip_hash,expires_at,revoked_at,age_declared_at,rules_accepted_at')
-   .eq('token_hash',await hash(data.token)).maybeSingle();
+   .eq('token_hash',tokenHash).maybeSingle();
  if(sessionError)return failDb();
  if(!session||session.ip_hash!==ipHash||session.revoked_at||!session.age_declared_at||!session.rules_accepted_at||Date.parse(session.expires_at)<=Date.now())
    return respond(401,{error:'Session unavailable'});
+ const actionBucket:Record<string,string>={
+   match:'match_session',state:'state_session',leave:'leave_session',
+   messages:'messages_session',send:'send_session',report:'report_session',block:'block_session'
+ };
+ if(typeof action==='string'&&Object.prototype.hasOwnProperty.call(actionBucket,action)){
+   const sessionLimit=await enforceRateLimit(tokenHash,actionBucket[action]);
+   if(sessionLimit)return sessionLimit;
+ }
  if(action==='match'){
    const {data:result,error}=await db.rpc('public_chat_match',{p_session_id:session.id});
    return error?failDb():respond(200,result);
@@ -85,6 +107,24 @@ Deno.serve(async req=>{
      p_session_id:session.id,p_room_id:data.room_id,p_after_id:data.after_id});
    return error?respond(403,{error:'Conversation unavailable'}):respond(200,{messages});
  }
+ if(action==='report'){
+   if(!validRoom(data.room_id)||typeof data.reason!=='string'||!reportReasons.has(data.reason)||
+      !(data.message_id===null||data.message_id===undefined||
+         (Number.isSafeInteger(data.message_id)&&Number(data.message_id)>0)))
+     return respond(400,{error:'Invalid report'});
+   const {data:recorded,error}=await db.rpc('public_chat_report',{
+     p_session_id:session.id,p_room_id:data.room_id,
+     p_message_id:data.message_id??null,p_reason:data.reason});
+   if(error)return failDb();
+   return recorded===true?respond(200,{ok:true}):respond(403,{error:'Report not accepted'});
+ }
+ if(action==='block'){
+   if(!validRoom(data.room_id))return respond(400,{error:'Invalid request'});
+   const {data:blocked,error}=await db.rpc('public_chat_block',{
+     p_session_id:session.id,p_room_id:data.room_id});
+   if(error)return failDb();
+   return blocked===true?respond(200,{ok:true}):respond(403,{error:'Conversation unavailable'});
+ }
  if(action!=='send')return respond(400,{error:'Unknown action'});
  if(!validRoom(data.room_id))return respond(400,{error:'Invalid request'});
  if(typeof data.body!=='string')return respond(400,{error:'Invalid message'});
@@ -97,10 +137,12 @@ Deno.serve(async req=>{
  if(roomError||!room||room.closed_at)return respond(403,{error:'Conversation unavailable'});
  for(let attempt=0;attempt<3;attempt++){
    const {data:last,error:lastError}=await db.from('public_chat_messages')
-     .select('id,body,sender_session_id').eq('room_id',roomId).order('id',{ascending:false}).limit(1);
+     .select('id,body,sender_session_id').eq('room_id',roomId).order('id',{ascending:false}).limit(5);
    if(lastError)return failDb();
    const latest=last?.[0];
-   const previousOther=latest&&latest.sender_session_id!==session.id?latest.body:undefined;
+   // Recently asked age questions come from trusted database messages only.
+   const previousOther=last?.find(m=>m.sender_session_id!==session.id&&
+     /\b(?:how old|what(?:'s| is) your age|your age|ur age)\b/i.test(m.body))?.body;
    const decision=moderatePublicMessage(data.body,previousOther);
    if(!decision.allowed){
      if(decision.reasons.includes('minor_disclosure')){
