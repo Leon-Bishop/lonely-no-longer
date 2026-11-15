@@ -23,11 +23,25 @@ const rules: {id:string; pattern:RegExp; severity:'medium'|'critical'}[] = [
   {id:'personal_data',pattern:/\b(?:my (?:address|eircode|postcode|phone number|mobile number) is|my (?:email|e-mail) is)\b/i,severity:'medium'},
   {id:'email',pattern:/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i,severity:'medium'},
 ];
-export function moderatePublicMessage(input:unknown):ModerationDecision {
+/**
+ * If the immediately preceding message from the OTHER participant asked for age,
+ * a bare reply such as "15", "I'm 16", or "17 years old" is a minor disclosure.
+ * Only pass a trusted server-fetched previous message, never client-provided context.
+ */
+export function isUnder18AgeReply(input:unknown, previousOtherMessage:unknown):boolean {
+  if(typeof input!=='string'||typeof previousOtherMessage!=='string')return false;
+  const question=previousOtherMessage.normalize('NFKC').trim();
+  if(!/\\b(?:how old (?:are|r) (?:you|u)|what(?:'s| is) your age|(?:your|ur) age\\??)\\b/i.test(question))return false;
+  const reply=input.normalize('NFKC').trim();
+  const match=/^(?:(?:i(?:'m| am)|aged?|only|just)\\s+)?(\\d{1,2})(?:\\s*(?:years?\\s*old|yrs?\\s*old|yo))?[.!\\s]*$/i.exec(reply);
+  return !!match&&Number(match[1])<18;
+}
+export function moderatePublicMessage(input:unknown, previousOtherMessage?:unknown):ModerationDecision {
   if(typeof input!=='string')return {allowed:false,action:'block',reasons:['invalid_message'],severity:'medium'};
   const message=input.normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim();
   if(message.length<1||message.length>500)return {allowed:false,action:'block',reasons:['invalid_length'],severity:'medium'};
   const matched=rules.filter(rule=>rule.pattern.test(message));
+  if(isUnder18AgeReply(message,previousOtherMessage)&&!matched.some(rule=>rule.id==='minor_disclosure'))matched.push({id:'minor_disclosure',pattern:/$^/,severity:'critical'});
   if(!matched.length)return {allowed:true,action:'allow',reasons:[],severity:'none'};
   const critical=matched.some(rule=>rule.severity==='critical');
   return {allowed:false,action:critical?'escalate':'block',reasons:matched.map(rule=>rule.id),severity:critical?'critical':'medium'};
