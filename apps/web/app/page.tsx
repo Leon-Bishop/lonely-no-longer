@@ -16,6 +16,7 @@ export default function Home(){
  <p className="mt-3 text-center text-sm text-[#52675a]">{adult&&kind?'Thanks for reading the rules. Public chat is still closed.':'Read both rules to prepare for a future chat.'}</p>
  </section>
 
+ <aside aria-label="Reserved advertisement space" className="mx-auto mt-8 max-w-[728px] rounded-xl border border-dashed border-[#d6ded3] bg-[#faf9f4] px-4 py-5 text-center"><p className="text-[10px] font-semibold uppercase tracking-widest text-[#87938a]">Advertisement</p><p className="mt-1 text-xs text-[#87938a]">Ad space reserved</p></aside>
  <p className="mt-8 text-center text-sm text-[#52675a]">Emergency: 112 or 999 · Samaritans Ireland: 116 123. This is not a crisis service.</p>
 
  </main>;
