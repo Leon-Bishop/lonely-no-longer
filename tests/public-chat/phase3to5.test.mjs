@@ -74,6 +74,6 @@ test('workflow runs security tests and static frontend build',()=>{
 
 test('public route content does not nest a second main landmark',()=>{
  assert.match(read('apps/web/app/layout.tsx'),/<main id="main"/);
- assert.doesNotMatch(read('apps/web/app/page.tsx'),/<main\\b/);
- assert.doesNotMatch(read('apps/web/app/chat/page.tsx'),/<main\\b/);
+ assert.doesNotMatch(read('apps/web/app/page.tsx'),/<main\b/);
+ assert.doesNotMatch(read('apps/web/app/chat/page.tsx'),/<main\b/);
 });
