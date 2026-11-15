@@ -84,7 +84,7 @@ begin
       join public.public_chat_rooms r on r.id=m.room_id
       where m.session_id=s.id and m.left_at is null and r.closed_at is null)
   order by w.enqueued_at
-  for update of w,s skip locked limit 1;
+  limit 1 for update of w,s skip locked;
   if v_peer is null then
     insert into public.public_chat_waiting(session_id) values(p_session_id)
     on conflict(session_id) do nothing;
