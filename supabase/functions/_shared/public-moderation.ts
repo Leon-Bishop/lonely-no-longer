@@ -16,8 +16,10 @@ const rules: {id:string; pattern:RegExp; severity:'medium'|'critical'}[] = [
   {id:'phone_number',pattern:/(?:\+?\d[\s().-]*){9,}/,severity:'medium'},
   {id:'off_platform',pattern:/\b(?:snapchat|snap|telegram|whatsapp|discord|instagram|insta|kik|signal|onlyfans)\b/i,severity:'medium'},
   {id:'location_request',pattern:/\b(?:what(?:'s| is) your address|where (?:exactly )?do you live|send (?:me )?your (?:address|location|eircode)|what school do you go to)\b/i,severity:'critical'},
-  {id:'minor_disclosure',pattern:/\b(?:i(?:'m| am) (?:only )?(?:[1-9]|1[0-7])\b|i(?:'m| am) (?:a )?minor\b|i(?:'m| am) under(?: the age of)? 18\b|i go to (?:primary|secondary|high) school)\b/i,severity:'critical'},
+  {id:'minor_disclosure',pattern:/\b(?:(?:i(?:'m| am)|im) (?:only )?(?:[1-9]|1[0-7])(?:\s*(?:years?\s*old|yrs?\s*old|y\/?o))?\b|(?:i(?:'m| am)|im) (?:a )?(?:minor|underage)\b|(?:i(?:'m| am)|im) under(?: the age of)? 18\b|i go to (?:primary|secondary|high) school)\b/i,severity:'critical'},
+  {id:'minor_disclosure',pattern:/\b(?:i(?:'m| am)|im) (?:only )?(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen)\b/i,severity:'critical'},
   {id:'minor_seeking',pattern:/\b(?:looking for|want to (?:meet|chat with)|seeking) (?:a |an )?(?:underage|minor|child|(?:1[0-7]|[1-9]) year old)\b/i,severity:'critical'},
+  {id:'sexual_content',pattern:/\b(?:sexting|sex chat|porn|nudes|explicit pics)\b/i,severity:'medium'},
   {id:'sexual_coercion',pattern:/\b(?:send (?:me )?(?:nudes|naked pics|sexual photos)|show me your (?:private parts|genitals)|keep (?:this|our chat) secret from (?:your )?(?:parents|mum|mom|dad)|don't tell (?:your )?(?:parents|mum|mom|dad))\b/i,severity:'critical'},
   {id:'threat',pattern:/\b(?:i(?:'ll| will) (?:kill|hurt|rape) you|i know where you live)\b/i,severity:'critical'},
   {id:'personal_data',pattern:/\b(?:my (?:address|eircode|postcode|phone number|mobile number) is|my (?:email|e-mail) is)\b/i,severity:'medium'},
@@ -33,8 +35,9 @@ export function isUnder18AgeReply(input:unknown, previousOtherMessage:unknown):b
   const question=previousOtherMessage.normalize('NFKC').replace(/[‘’]/g,"'").trim();
   if(!/\b(?:how old (?:are|r) (?:you|u)|what(?:'s| is) your age|(?:your|ur) age)\b/i.test(question))return false;
   const reply=input.normalize('NFKC').replace(/[‘’]/g,"'").trim();
-  const match=/^(?:(?:i(?:'m| am)|aged?|only|just)\s+)?(\d{1,2})(?:\s*(?:years?\s*old|yrs?\s*old|yo))?[.!\s]*$/i.exec(reply);
-  return !!match&&Number(match[1])<18;
+  const match=/^(?:(?:i(?:'m| am)|im|aged?|only|just)\s+)?(\d{1,2})(?:\s*(?:years?(?:\s*old)?|yrs?(?:\s*old)?|y\/?o))?[.!?\s]*$/i.exec(reply);
+  if(match)return Number(match[1])<18;
+  return /^(?:(?:i(?:'m| am)|im|aged?|only|just)\s+)?(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen)(?:\s+years?(?:\s+old)?)?[.!?\s]*$/i.test(reply);
 }
 export function moderatePublicMessage(input:unknown, previousOtherMessage?:unknown):ModerationDecision {
   if(typeof input!=='string')return {allowed:false,action:'block',reasons:['invalid_message'],severity:'medium'};

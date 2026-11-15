@@ -38,6 +38,7 @@ async function init(enabled=true){
      },async limit(){if(table!=='public_chat_messages')throw Error(table);return {data:state.messages.slice(-1).reverse(),error:null};}
    };return q;},
    async rpc(name,args){state.rpcCalls.push({name,args});
+     if(name==='public_chat_consume_rate_limit')return {data:true,error:null};
      if(name==='public_chat_begin'){state.sessions.set(args.p_token_hash,{id:SESSION,ip_hash:args.p_ip_hash,expires_at:new Date(Date.now()+3600000).toISOString(),revoked_at:null,age_declared_at:new Date().toISOString(),rules_accepted_at:new Date().toISOString()});return {data:SESSION,error:null};}
      if(name==='public_chat_match'){state.waiting=false;return {data:{state:'connected',room_id:ROOM},error:null};}
      if(name==='public_chat_state')return {data:{state:state.closed?'ended':state.waiting?'waiting':'connected',room_id:state.closed||state.waiting?undefined:ROOM},error:null};
@@ -106,7 +107,7 @@ test('complete flow: anonymous start, match, status, send, read, next, end',asyn
  response=await request(handler,{action:'leave',token,end:false});assert.equal(response.status,200);
  response=await request(handler,{action:'leave',token,end:true});assert.equal(response.status,200);
  assert.equal(state.revoked,true);
- assert.deepEqual(state.rpcCalls.map(x=>x.name),['public_chat_begin','public_chat_match','public_chat_state','public_chat_safe_insert_v2','public_chat_read','public_chat_leave','public_chat_leave']);
+ assert.deepEqual(state.rpcCalls.filter(x=>x.name!=='public_chat_consume_rate_limit').map(x=>x.name),['public_chat_begin','public_chat_match','public_chat_state','public_chat_safe_insert_v2','public_chat_read','public_chat_leave','public_chat_leave']);
 });
 test('stolen token from a different IP cannot access session',async()=>{
  const {handler}=await init();const {token}=await (await request(handler,{action:'start',adult:true,agree_rules:true})).json();
