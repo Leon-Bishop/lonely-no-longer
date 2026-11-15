@@ -29,7 +29,7 @@ Deno.serve(async req=>{
  const nonce=req.headers.get('x-lnl-nonce')||'';
  const ipHash=req.headers.get('x-lnl-ip-hash')||'';
  const signature=req.headers.get('x-lnl-signature')||'';
- if(!/^\\d{10}$/.test(timestamp)||Math.abs(Date.now()/1000-Number(timestamp))>30||
+ if(!/^\d{10}$/.test(timestamp)||Math.abs(Date.now()/1000-Number(timestamp))>30||
     !/^[a-f0-9-]{36}$/.test(nonce)||!/^[a-f0-9]{64}$/.test(ipHash)||!/^[a-f0-9]{64}$/.test(signature))
    return respond(403,{error:'Forbidden'});
  const body=await req.text();
