@@ -16,7 +16,14 @@ export default function Home(){
  <p className="mt-3 text-center text-sm text-[#52675a]">{adult&&kind?'Thanks for reading the rules. Public chat is still closed.':'Read both rules to prepare for a future chat.'}</p>
  </section>
 
- <aside aria-label="Reserved advertisement space" className="mx-auto mt-8 max-w-[728px] rounded-xl border border-dashed border-[#d6ded3] bg-[#faf9f4] px-4 py-5 text-center"><p className="text-[10px] font-semibold uppercase tracking-widest text-[#87938a]">Advertisement</p><p className="mt-1 text-xs text-[#87938a]">Ad space reserved</p></aside>
+ <aside aria-label="Sample advertisement" className="mx-auto mt-8 max-w-[728px] overflow-hidden rounded-2xl border border-[#d9dfd3] bg-[#f0f3e9] p-4 sm:p-5">
+  <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#708073]">Advertisement · Demo only</p>
+  <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-5 text-center sm:flex-row sm:text-left">
+   <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#e5efdc] text-4xl">☕</div>
+   <div className="flex-1"><p className="text-lg font-bold text-[#153f30]">A little break, a lovely brew.</p><p className="mt-1 text-sm text-[#52675a]">Make time for a cuppa and a friendly conversation.</p><p className="mt-2 text-xs font-semibold text-[#718276]">Sample creative · Not a real advertiser</p></div>
+   <span className="rounded-full border border-[#bfd0bd] px-5 py-2 text-sm font-semibold text-[#205338]">Example ad</span>
+  </div>
+ </aside>
  <p className="mt-8 text-center text-sm text-[#52675a]">Emergency: 112 or 999 · Samaritans Ireland: 116 123. This is not a crisis service.</p>
 
  </main>;
