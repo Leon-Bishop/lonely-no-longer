@@ -73,7 +73,7 @@ test('SQL is designed as service-role-only RPCs with one-at-a-time matchmaking',
    assert.match(sql,new RegExp('grant execute on function public\\.'+name+'\\('));
  }
  assert.match(sql,/pg_advisory_xact_lock\(7647218349\)/);
- assert.match(sql,/for update of w,s skip locked/);
+ assert.match(sql,/limit 1 for update of w,s skip locked/);
  assert.match(sql,/last_peer_session_id/);
  assert.match(sql,/age_declared_at/);
  assert.match(sql,/alter column age_verified_at drop not null/);
