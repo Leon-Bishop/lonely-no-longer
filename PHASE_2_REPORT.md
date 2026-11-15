@@ -23,10 +23,10 @@
 
 ## Test evidence
 
-A local offline suite of **92 tests passed**: 28 Phase 2 tests, 10 Phase 1 tests, and 54 prior gateway, moderation, IP-ban and SQL-contract tests. The full suite and execution log are provided in the accompanying downloadable bundle. Run with Node.js 22:
+A local offline suite of **92 tests passed**: 28 Phase 2 tests, 10 Phase 1 tests, and 54 prior gateway, moderation, IP-ban and SQL-contract tests. The full suite and execution log are provided in the accompanying downloadable bundle. The GitHub branch includes a compact Phase 2 test file; the legacy standalone regression files are bundled separately. To run the tests checked into the branch with Node.js 22:
 
 ~~~bash
-node --experimental-strip-types --test tests/public-chat/{phase1,phase2,moderation,gateway,ip-ban,sql-contract,security-regressions}.test.mjs
+node --experimental-strip-types --test tests/public-chat/{phase1,phase2,security-regressions}.test.mjs
 ~~~
 
 The tests use mocked Supabase calls. SQL tests are static checks, **not** execution of the migration against PostgreSQL. No real Supabase RLS verification, concurrency stress test, Cloudflare integration, Next.js production build or multi-browser staging tests have been run. This limitation is substantial.
