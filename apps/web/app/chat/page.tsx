@@ -16,7 +16,7 @@ export default function ChatPreview(){
  <button disabled className="mt-6 w-full rounded-xl bg-[#185435] px-5 py-4 text-lg font-bold text-white opacity-50">Start an anonymous chat — coming soon</button>
  <p className="mt-3 text-center text-sm text-[#52675a]">{adult&&kind?'Thanks for reading the rules. Public chat is still closed.':'Read both rules to prepare for a future chat.'}</p>
  </section>
- <div className="mt-9 grid gap-4 sm:grid-cols-3">{[['🎭','Funny anonymous names','No accounts or profiles.'],['💬','One-to-one conversations','Private matching is in development.'],['🛡️','Safety by design','Reporting, blocking and moderation before launch.']].map(([emoji,title,desc])=><div key={title} className="rounded-2xl bg-[#eaf1e6] p-5"><p className="text-2xl">{emoji}</p><h3 className="mt-2 font-bold">{title}</h3><p className="mt-1 text-sm text-[#52675a]">{desc}</p></div>)}</div>
+
  <p className="mt-8 text-center text-sm text-[#52675a]">Emergency: 112 or 999 · Samaritans Ireland: 116 123. This is not a crisis service.</p>
  <p className="mt-6 text-center"><Link href="/" className="font-semibold text-[#185435] underline">Back to Lonely No Longer</Link></p>
  </main>;
