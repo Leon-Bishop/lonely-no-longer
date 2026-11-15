@@ -1,30 +1,27 @@
-'use client';
-import {useState} from 'react';
+import Link from 'next/link';
 export default function Home(){
- const [adult,setAdult]=useState(false),[kind,setKind]=useState(false);
- return <main className="mx-auto max-w-4xl px-5 py-12 sm:py-20">
- <span className="rounded-full bg-[#e5efdf] px-4 py-2 text-sm font-bold text-[#205338]">☘ A little company goes a long way</span>
- <h1 className="mt-6 font-serif text-4xl font-bold text-[#153f30] sm:text-6xl">A good chat can change your day.</h1>
- <p className="mt-5 max-w-2xl text-lg text-[#52675a]">No profiles. No awkward introductions. Just two people, a little kindness, and maybe a laugh over a cup of tea.</p>
- <section className="mt-10 rounded-3xl border border-[#cddcc9] bg-white p-6 shadow-sm sm:p-9">
- <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold text-[#153f30]">Before you say hello ☕</h2><span className="rounded-full bg-[#fae9d9] px-3 py-1 text-xs font-bold">Preview only</span></div>
- <p className="mt-3 text-[#52675a]">Please read and agree to our ground rules.</p>
- <label className="mt-6 flex cursor-pointer items-start gap-3"><input type="checkbox" checked={adult} onChange={e=>setAdult(e.target.checked)} className="mt-1 h-5 w-5 accent-[#185435]"/><span><strong>I confirm that I am 18 or older.</strong><span className="block text-sm text-[#52675a]">This is self-declaration, not independent age verification.</span></span></label>
- <label className="mt-5 flex cursor-pointer items-start gap-3"><input type="checkbox" checked={kind} onChange={e=>setKind(e.target.checked)} className="mt-1 h-5 w-5 accent-[#185435]"/><span><strong>I'll treat people with respect.</strong><span className="block text-sm text-[#52675a]">No harassment, sexual content, threats, links or sharing personal contact details.</span></span></label>
- <div className="mt-7 rounded-xl border border-[#e9d7b6] bg-[#fff7e8] p-4"><p className="font-semibold text-[#6d5127]">Public matching isn't open yet.</p><p className="mt-1 text-sm text-[#6d5127]">We're building server-side safety, moderation and privacy protections before welcoming visitors.</p></div>
- <button disabled className="mt-6 w-full rounded-xl bg-[#185435] px-5 py-4 text-lg font-bold text-white opacity-50">Start an anonymous chat — coming soon</button>
- <p className="mt-3 text-center text-sm text-[#52675a]">{adult&&kind?'Thanks for reading the rules. Public chat is still closed.':'Read both rules to prepare for a future chat.'}</p>
- </section>
-
- <aside aria-label="Sample advertisement" className="mx-auto mt-8 max-w-[728px] overflow-hidden rounded-2xl border border-[#d9dfd3] bg-[#f0f3e9] p-4 sm:p-5">
-  <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#708073]">Advertisement · Demo only</p>
-  <div className="flex flex-col items-center gap-4 rounded-xl bg-white p-5 text-center sm:flex-row sm:text-left">
-   <div aria-hidden="true" className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#e5efdc] text-4xl">☕</div>
-   <div className="flex-1"><p className="text-lg font-bold text-[#153f30]">A little break, a lovely brew.</p><p className="mt-1 text-sm text-[#52675a]">Make time for a cuppa and a friendly conversation.</p><p className="mt-2 text-xs font-semibold text-[#718276]">Sample creative · Not a real advertiser</p></div>
-   <span className="rounded-full border border-[#bfd0bd] px-5 py-2 text-sm font-semibold text-[#205338]">Example ad</span>
-  </div>
- </aside>
- <p className="mt-8 text-center text-sm text-[#52675a]">Emergency: 112 or 999 · Samaritans Ireland: 116 123. This is not a crisis service.</p>
-
+ return <main className="mx-auto max-w-5xl px-5 py-12 sm:py-20">
+  <span className="inline-block rounded-full bg-[#e5efdf] px-4 py-2 text-sm font-semibold text-[#205338]">☘ A little company goes a long way</span>
+  <h1 className="mt-7 max-w-3xl font-serif text-4xl font-bold leading-tight text-[#153f30] sm:text-6xl">A good chat can change your day.</h1>
+  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#52675a]">No profiles. No awkward introductions. Just two people, some kindness, and maybe a laugh over a cup of tea.</p>
+  <section aria-label="Public chat development status" className="mt-9 rounded-3xl border border-[#cddcc9] bg-white p-6 shadow-sm sm:p-9">
+   <p className="inline-flex rounded-full bg-[#fff1de] px-3 py-1 text-xs font-bold text-[#725028]">Development preview · Public chat not accepting visitors</p>
+   <h2 className="mt-4 font-serif text-2xl font-bold text-[#153f30]">Come and see what we're building ☕</h2>
+   <p className="mt-3 max-w-2xl text-[#52675a]">Our anonymous, text-only one-to-one chat is being prepared for adults. We’re working on moderation, privacy and testing before opening to visitors.</p>
+   <div className="mt-6 flex flex-wrap items-center gap-4">
+    <Link href="/chat" className="btn rounded-xl">See the chat preview</Link>
+    <Link href="/safety" className="btn-secondary rounded-xl">How to stay safe</Link>
+   </div>
+   <p className="mt-4 text-sm text-[#52675a]">The preview asks for an 18+ self-declaration, not independent age verification. It will not connect you to other visitors yet.</p>
+  </section>
+  <section aria-labelledby="how-it-works" className="mt-12">
+   <h2 id="how-it-works" className="font-serif text-3xl font-bold text-[#153f30]">Good company. Simple steps.</h2>
+   <div className="mt-5 grid gap-4 sm:grid-cols-3">
+    <div className="rounded-2xl border border-[#d7e2d7] bg-[#f6faf2] p-5"><p aria-hidden="true" className="text-3xl">🌿</p><h3 className="mt-3 text-lg font-bold">1. Read the rules</h3><p className="mt-2 text-sm text-[#52675a]">Adults only. Keep your details private and treat people kindly.</p></div>
+    <div className="rounded-2xl border border-[#d7e2d7] bg-[#f6faf2] p-5"><p aria-hidden="true" className="text-3xl">☕</p><h3 className="mt-3 text-lg font-bold">2. Find someone</h3><p className="mt-2 text-sm text-[#52675a]">A future chat will pair two available anonymous visitors.</p></div>
+    <div className="rounded-2xl border border-[#d7e2d7] bg-[#f6faf2] p-5"><p aria-hidden="true" className="text-3xl">♡</p><h3 className="mt-3 text-lg font-bold">3. Chat at your pace</h3><p className="mt-2 text-sm text-[#52675a]">Say hello, report concerns, or end the conversation whenever you wish.</p></div>
+   </div>
+  </section>
+  <p className="mt-11 text-center text-sm text-[#52675a]">Immediate danger in Ireland: 112 / 999 · Samaritans: 116 123. We are not a crisis service.</p>
  </main>;
 }
