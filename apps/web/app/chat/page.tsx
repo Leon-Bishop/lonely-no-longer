@@ -25,6 +25,7 @@ export default function PublicChat(){
  const lastRoomRef=useRef<string|null>(null);
  const lastMessageRef=useRef(0);
  const bottomRef=useRef<HTMLDivElement>(null);
+ const reportHeadingRef=useRef<HTMLHeadingElement>(null);
  const activeRef=useRef(true);
  const busyRef=useRef(false);
  const call=useCallback(async <T,>(action:string,extra:Record<string,unknown>={}):Promise<T>=>{
@@ -85,6 +86,7 @@ export default function PublicChat(){
    return()=>{cancelled=true;clearInterval(timer);};
  },[stage,roomId,call,applyMatch]);
  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:'smooth',block:'end'});},[messages.length]);
+ useEffect(()=>{if(reportOpen)reportHeadingRef.current?.focus();},[reportOpen]);
  async function start(e:React.FormEvent){
    e.preventDefault();if(busy||!adult||!rules||!gateway)return;
    setBusy(true);setError('');
@@ -172,12 +174,12 @@ export default function PublicChat(){
      <p className="mt-2 text-[#52675a]">We ask everyone to read these rules first.</p>
      <form onSubmit={start} className="mt-6 space-y-5">
        <label className="flex cursor-pointer items-start gap-3"><input type="checkbox" className="mt-1 h-5 w-5 accent-[#185435]" checked={adult} onChange={e=>setAdult(e.target.checked)}/><span><strong>I confirm I am 18 or older.</strong><span className="block text-sm text-[#52675a]">This is self-declaration, not independent age verification.</span></span></label>
-       <label className="flex cursor-pointer items-start gap-3"><input type="checkbox" className="mt-1 h-5 w-5 accent-[#185435]" checked={rules} onChange={e=>setRules(e.target.checked)}/><span><strong>I agree to be kind and protect my privacy.</strong><span className="block text-sm text-[#52675a]">No links, contact details, harassment or sexual content. <Link href="/rules" className="underline">Read all community rules</Link>.</span></span></label>
+       <label className="flex cursor-pointer items-start gap-3"><input type="checkbox" className="mt-1 h-5 w-5 accent-[#185435]" checked={rules} onChange={e=>setRules(e.target.checked)}/><span><strong>I agree to be kind and protect my privacy.</strong><span className="block text-sm text-[#52675a]">No links, contact details, harassment or sexual content. <Link href="/rules" className="underline">Community rules</Link>, <Link href="/privacy" className="underline">privacy</Link> and <Link href="/safety" className="underline">safety advice</Link>.</span></span></label>
        {!gateway&&<p className="rounded-xl border border-[#ead7b1] bg-[#fff7e8] p-4 text-sm text-[#78572b]">The public chat is being built and is not accepting visitors yet.</p>}
        <button type="submit" disabled={!gateway||!adult||!rules||busy} className="btn w-full rounded-xl py-4 text-lg">{busy?'Connecting…':'Start an anonymous chat'}</button>
      </form>
    </section>}
-   {(stage==='waiting'||stage==='connected')&&<section aria-label="Anonymous conversation" className="overflow-hidden rounded-3xl border border-[#cfddcf] bg-white shadow-sm">
+   {(stage==='waiting'||stage==='connected')&&<section aria-label="Anonymous conversation" aria-busy={busy} className="overflow-hidden rounded-3xl border border-[#cfddcf] bg-white shadow-sm">
      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dce7dc] bg-[#eaf1e6] px-4 py-4 sm:px-6">
        <div><h2 className="text-lg font-bold text-[#174a34]">☘ Your conversation</h2><p className="text-sm text-[#536d5a]" role="status">{stage==='waiting'?'Finding someone to talk to…':'Connected to one other visitor · Text only'}</p></div>
        <div className="flex flex-wrap gap-2">
@@ -195,8 +197,8 @@ export default function PublicChat(){
        </div><form onSubmit={send} className="flex items-end gap-3 border-t border-[#dce7dc] bg-[#eaf1e6] p-3 sm:p-5"><label htmlFor="public-chat-message" className="sr-only">Write your message</label><textarea id="public-chat-message" rows={2} maxLength={500} value={body} onChange={e=>setBody(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}} placeholder="Write a kind message…" className="min-w-0 flex-1 resize-none rounded-xl border border-[#b9cdbb] bg-white p-3 text-base"/><button className="btn min-h-12 rounded-xl" type="submit" disabled={busy||!body.trim()}>Send</button></form></>}
    </section>}
    {stage==='ended'&&<section className="panel mx-auto max-w-2xl text-center"><div aria-hidden="true" className="text-5xl">🌿</div><h2 className="mt-5 font-serif text-3xl font-bold">Conversation ended</h2><p className="mt-3 text-[#52675a]">Thanks for stopping by. You can choose to find someone else or return home.</p><div className="mt-6 flex flex-wrap justify-center gap-3">{tokenRef.current&&<button type="button" onClick={()=>void next()} disabled={busy} className="btn">Find someone else</button>}{tokenRef.current&&lastRoomRef.current&&<button type="button" onClick={()=>openReport(null)} disabled={busy} className="btn-secondary">Report previous chat</button>}<Link href="/" className="btn-secondary">Back home</Link></div></section>}
-   {reportOpen&&<form onSubmit={submitReport} className="panel mx-auto mt-5 max-w-2xl" aria-label="Report a safety concern">
-     <h2 className="text-xl font-bold text-[#174a34]">Report a concern</h2>
+   {reportOpen&&<form onSubmit={submitReport} className="panel mx-auto mt-5 max-w-2xl" aria-labelledby="report-heading">
+     <h2 ref={reportHeadingRef} tabIndex={-1} id="report-heading" className="text-xl font-bold text-[#174a34]">Report a concern</h2>
      <p className="mt-2 text-sm text-[#52675a]">Reports are submitted for human review. A report alone does not automatically ban anyone.</p>
      <label htmlFor="report-reason" className="mt-4 block font-semibold">Why are you reporting?</label>
      <select id="report-reason" value={reportReason} onChange={e=>setReportReason(e.target.value)} className="mt-2 w-full rounded-lg border border-[#b9cdbb] bg-white p-3">
