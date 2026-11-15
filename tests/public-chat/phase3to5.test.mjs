@@ -71,3 +71,9 @@ test('workflow runs security tests and static frontend build',()=>{
  assert.match(workflow,/node --experimental-strip-types --test tests\/public-chat\/\*\.test\.mjs/);
  assert.match(workflow,/npm run build -w @lnl\/web/);
 });
+
+test('public route content does not nest a second main landmark',()=>{
+ assert.match(read('apps/web/app/layout.tsx'),/<main id="main"/);
+ assert.doesNotMatch(read('apps/web/app/page.tsx'),/<main\\b/);
+ assert.doesNotMatch(read('apps/web/app/chat/page.tsx'),/<main\\b/);
+});
