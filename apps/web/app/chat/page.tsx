@@ -164,7 +164,7 @@ export default function PublicChat(){
    }catch(err){setError(err instanceof Error?err.message:'Unable to send message');}
    finally{setBusy(false);}
  }
- return <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+ return <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
    <div className="mb-7"><span className="rounded-full bg-[#e5efdf] px-4 py-2 text-sm font-semibold text-[#205338]">☘ Lonely No Longer · Anonymous one-to-one chat</span>
      <h1 className="mt-5 font-serif text-4xl font-bold text-[#153f30] sm:text-5xl">Come as you are. Say hello.</h1>
      <p className="mt-3 max-w-2xl text-[#52675a]">No account, name or profile. A calm place for two adults to have a kind conversation.</p>
@@ -217,5 +217,5 @@ export default function PublicChat(){
    {notice&&<p role="status" className="mx-auto mt-5 max-w-2xl rounded-xl border border-[#cddcc9] bg-[#e9f3e6] p-4 text-sm text-[#21533c]">{notice}</p>}
    {error&&<p role="alert" className="mx-auto mt-5 max-w-2xl rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
    <p className="mt-7 text-center text-sm text-[#52675a]">Do not share identifying information. This is not a crisis service. Emergency: 112 / 999 · Samaritans: 116 123.</p>
- </main>;
+ </div>;
 }
