@@ -30,15 +30,15 @@ const rules: {id:string; pattern:RegExp; severity:'medium'|'critical'}[] = [
  */
 export function isUnder18AgeReply(input:unknown, previousOtherMessage:unknown):boolean {
   if(typeof input!=='string'||typeof previousOtherMessage!=='string')return false;
-  const question=previousOtherMessage.normalize('NFKC').trim();
-  if(!/\\b(?:how old (?:are|r) (?:you|u)|what(?:'s| is) your age|(?:your|ur) age\\??)\\b/i.test(question))return false;
-  const reply=input.normalize('NFKC').trim();
-  const match=/^(?:(?:i(?:'m| am)|aged?|only|just)\\s+)?(\\d{1,2})(?:\\s*(?:years?\\s*old|yrs?\\s*old|yo))?[.!\\s]*$/i.exec(reply);
+  const question=previousOtherMessage.normalize('NFKC').replace(/[‘’]/g,"'").trim();
+  if(!/\b(?:how old (?:are|r) (?:you|u)|what(?:'s| is) your age|(?:your|ur) age)\b/i.test(question))return false;
+  const reply=input.normalize('NFKC').replace(/[‘’]/g,"'").trim();
+  const match=/^(?:(?:i(?:'m| am)|aged?|only|just)\s+)?(\d{1,2})(?:\s*(?:years?\s*old|yrs?\s*old|yo))?[.!\s]*$/i.exec(reply);
   return !!match&&Number(match[1])<18;
 }
 export function moderatePublicMessage(input:unknown, previousOtherMessage?:unknown):ModerationDecision {
   if(typeof input!=='string')return {allowed:false,action:'block',reasons:['invalid_message'],severity:'medium'};
-  const message=input.normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim();
+  const message=input.normalize('NFKC').replace(/[‘’]/g,"'").replace(/[\u200B-\u200D\uFEFF]/g,'').trim();
   if(message.length<1||message.length>500)return {allowed:false,action:'block',reasons:['invalid_length'],severity:'medium'};
   const matched=rules.filter(rule=>rule.pattern.test(message));
   if(isUnder18AgeReply(message,previousOtherMessage)&&!matched.some(rule=>rule.id==='minor_disclosure'))matched.push({id:'minor_disclosure',pattern:/$^/,severity:'critical'});
