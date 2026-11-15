@@ -22,10 +22,16 @@ export default function PrivateChat(){
    <div className="flex items-center gap-2"><button type="button" onClick={()=>setBlocked(true)} className="rounded-md border border-[#cbd9ca] px-3 py-2 text-sm hover:bg-[#e8eee6]">Block</button><button type="button" onClick={leave} className="rounded-md bg-[#185435] px-4 py-2 text-sm font-semibold text-white hover:bg-[#103a26]">Leave</button></div>
   </header>
   {blocked?<div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center"><h2 className="text-2xl font-bold">Conversation hidden</h2><p>Blocking hides this conversation on your device only. It does not prevent the other tester from sending messages.</p><button type="button" className="btn" onClick={()=>setBlocked(false)}>Show conversation</button><button type="button" className="text-sm underline" onClick={leave}>Leave chat</button></div>:<>
-   <section aria-label="Conversation" aria-live="polite" className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
+   <section aria-label="Conversation" aria-live="polite" className="min-h-0 flex-1 overflow-y-auto bg-gradient-to-b from-[#fbfaf5] to-[#f6f7ef] px-4 py-6 sm:px-8 sm:py-8">
     {messages.length===0&&<div className="mt-8 max-w-xl text-left"><p className="text-xl font-semibold text-[#345d42]">A little company goes a long way ☕</p><p className="mt-2 text-sm text-[#6a7c6e]">A fresh chat, a funny name, and someone to talk to. Say hello!</p></div>}
     <div className="w-full space-y-0">
-    {messages.map(m=><div key={m.id} className="group flex w-full items-start gap-3 border-b border-[#e8eae1] py-3 text-[15px] leading-7 sm:text-base"><span className={'w-32 shrink-0 font-semibold sm:w-40 '+(m.seat===seat?'text-[#246a45]':'text-[#a45d38]')}>{chatName(m.seat)+':'}</span><span className="min-w-0 flex-1 whitespace-pre-wrap break-words text-[#283a2d]">{m.body}</span>{m.seat!==seat&&<button type="button" onClick={()=>void report(m.id)} className="shrink-0 text-xs text-[#64796a] underline opacity-70 hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100" aria-label="Report this message">Report</button>}</div>)}
+    {messages.map((m,i)=>{const mine=m.seat===seat;const previous=messages[i-1];const showName=!previous||previous.seat!==m.seat;return <div key={m.id} className={'flex w-full flex-col '+(mine?'items-end':'items-start')+(showName?' mt-5':' mt-1.5')}>
+     {showName&&<div className={'mb-1.5 flex items-center gap-2 px-2 text-xs font-semibold '+(mine?'text-[#3c7152]':'text-[#a45d38]')}><span className={'flex h-6 w-6 items-center justify-center rounded-full text-[11px] '+(mine?'bg-[#d5e9d8]':'bg-[#f5e0cb]')}>{mine?'☘':'☕'}</span><span>{chatName(m.seat)}</span>{mine&&<span className="font-normal text-[#778c7c]">· you</span>}</div>}
+     <div className={'group flex max-w-[88%] items-end gap-2 sm:max-w-[72%] '+(mine?'flex-row-reverse':'flex-row')}>
+      <div className={'min-w-0 whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-relaxed shadow-sm sm:text-base '+(mine?'rounded-[20px] rounded-br-[6px] bg-[#226343] text-white':'rounded-[20px] rounded-bl-[6px] border border-[#e4dfd4] bg-white text-[#293a2d]')}>{m.body}</div>
+      {!mine&&<button type="button" onClick={()=>void report(m.id)} className="shrink-0 px-1 text-xs text-[#6a7c6e] underline opacity-70 hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100" aria-label="Report this message">Report</button>}
+     </div>
+    </div>;})}
     <div ref={bottom}/>
     </div>
    </section>
