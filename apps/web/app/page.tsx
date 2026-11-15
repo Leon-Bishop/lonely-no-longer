@@ -1,6 +1,6 @@
 import Link from 'next/link';
 export default function Home(){
- return <main className="mx-auto max-w-5xl px-5 py-12 sm:py-20">
+ return <div className="mx-auto max-w-5xl px-5 py-12 sm:py-20">
   <span className="inline-block rounded-full bg-[#e5efdf] px-4 py-2 text-sm font-semibold text-[#205338]">☘ A little company goes a long way</span>
   <h1 className="mt-7 max-w-3xl font-serif text-4xl font-bold leading-tight text-[#153f30] sm:text-6xl">A good chat can change your day.</h1>
   <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[#52675a]">No profiles. No awkward introductions. Just two people, some kindness, and maybe a laugh over a cup of tea.</p>
@@ -23,5 +23,5 @@ export default function Home(){
    </div>
   </section>
   <p className="mt-11 text-center text-sm text-[#52675a]">Immediate danger in Ireland: 112 / 999 · Samaritans: 116 123. We are not a crisis service.</p>
- </main>;
+ </div>;
 }
