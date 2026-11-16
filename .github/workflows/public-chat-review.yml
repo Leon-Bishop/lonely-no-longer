@@ -38,5 +38,12 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Build Next.js static site without gateway configuration
+      - name: Build Cloudflare-style static preview at root
         run: npm run build -w @lnl/web
+      - name: Build GitHub Pages static preview at repository path
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm run build -w @lnl/web
+          test -f apps/web/out/index.html
+          grep -q '/lonely-no-longer/_next/' apps/web/out/index.html
