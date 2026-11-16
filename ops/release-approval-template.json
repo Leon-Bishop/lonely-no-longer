@@ -1,0 +1,16 @@
+{
+  "release_environment": "staging-to-production",
+  "note": "TEMPLATE ONLY. All sign-offs are intentionally absent.",
+  "approvals": {
+    "legal_controller_contact_and_final_notices": {"approved": false, "approver": "", "evidence": ""},
+    "gdpr_dpia_lawful_basis_and_retention": {"approved": false, "approver": "", "evidence": ""},
+    "adult_age_assurance_and_child_safety_review": {"approved": false, "approver": "", "evidence": ""},
+    "trained_moderation_staff_and_emergency_rota": {"approved": false, "approver": "", "evidence": ""},
+    "staging_database_rls_and_concurrency_tests": {"approved": false, "approver": "", "evidence": ""},
+    "staging_cloudflare_supabase_end_to_end_tests": {"approved": false, "approver": "", "evidence": ""},
+    "independent_security_and_abuse_assessment": {"approved": false, "approver": "", "evidence": ""},
+    "accessibility_and_mobile_review": {"approved": false, "approver": "", "evidence": ""},
+    "operational_monitoring_incident_alerts_and_oncall": {"approved": false, "approver": "", "evidence": ""},
+    "small_invited_adult_pilot_and_rollback_rehearsal": {"approved": false, "approver": "", "evidence": ""}
+  }
+}

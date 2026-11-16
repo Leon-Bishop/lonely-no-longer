@@ -1,0 +1,49 @@
+name: Public chat code review checks
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'supabase/**'
+      - 'cloudflare/**'
+      - 'tests/public-chat/**'
+      - 'scripts/public-chat-*.mjs'
+      - '.github/workflows/public-chat-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    name: Offline public-chat security and policy tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-audit --no-fund
+      - name: Native Node unit and contract tests (no production calls)
+        run: node --experimental-strip-types --test tests/public-chat/*.test.mjs
+      - name: Check preview source for unsafe configuration
+        run: node scripts/public-chat-preflight.mjs
+  static-build:
+    name: Build static preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build Cloudflare-style static preview at root
+        run: npm run build -w @lnl/web
+      - name: Build GitHub Pages static preview at repository path
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm run build -w @lnl/web
+          test -f apps/web/out/index.html
+          grep -q '/lonely-no-longer/_next/' apps/web/out/index.html
